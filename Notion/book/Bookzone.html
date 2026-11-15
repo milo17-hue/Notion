@@ -1,0 +1,876 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Bookzone</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="Style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;600;700;800&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap">
+
+<header class="site-head">
+  <div class="wrap head-in">
+    <a class="logo" href="#inicio" data-act="home" data-target="" aria-label="Bookzone, ir al inicio">BOOKZONE</a>
+    <nav class="nav" aria-label="Principal">
+      <button type="button" data-act="home" data-target="sec-categorias">Categorías</button>
+      <button type="button" data-act="home" data-target="sec-destacados">Destacados</button>
+      <button type="button" data-act="home" data-target="sec-autores">Autores</button>
+      <button type="button" data-act="catalog">Catálogo</button>
+    </nav>
+    <div class="icons">
+      <button type="button" class="ibtn" data-act="favs" aria-label="Mis favoritos">
+        <span data-icon="heart"></span><span class="badge" id="fav-count" hidden>0</span>
+      </button>
+      <button type="button" class="ibtn" data-act="cart" aria-label="Carrito y pedido">
+        <span data-icon="bag"></span><span class="badge" id="cart-count" hidden>0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer class="foot">
+  <div class="wrap foot-grid">
+    <div>
+      <a class="logo" href="#inicio" data-act="home" data-target="">BOOKZONE</a>
+      <form class="search" data-form="search" role="search">
+        <label class="sr" for="foot-q">Buscar libros</label>
+        <input id="foot-q" type="search" placeholder="Busca un libro" autocomplete="off">
+        <button type="submit" aria-label="Buscar" data-icon="arrow"></button>
+      </form>
+    </div>
+    <div>
+      <h3>Categorías</h3>
+      <ul>
+        <li><button type="button" data-act="genre" data-genre="Detective">Detective</button></li>
+        <li><button type="button" data-act="genre" data-genre="Romance">Romance</button></li>
+        <li><button type="button" data-act="genre" data-genre="Fantasía">Fantasía</button></li>
+        <li><button type="button" data-act="genre" data-genre="Terror">Terror</button></li>
+        <li><button type="button" data-act="genre" data-genre="Clásicos">Clásicos</button></li>
+        <li><button type="button" data-act="genre" data-genre="Comedia">Comedia</button></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Especial para ti</h3>
+      <ul>
+        <li><button type="button" data-act="home" data-target="sec-destacados">Destacados</button></li>
+        <li><button type="button" data-act="home" data-target="sec-autores">Libros por autor</button></li>
+        <li><button type="button" data-act="lang" data-lang="Inglés">Libros en inglés</button></li>
+        <li><button type="button" data-act="favs">Mis favoritos</button></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Tienda</h3>
+      <ul>
+        <li><button type="button" data-act="home" data-target="">Inicio</button></li>
+        <li><button type="button" data-act="catalog">Catálogo completo</button></li>
+        <li><button type="button" data-act="cart">Carrito y pedido</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap copy">© 2026 Bookzone · Sitio de demostración, los precios están en pesos colombianos.</div>
+</footer>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     1. DATOS
+     Cada libro tiene un id, géneros, idioma y precio en COP.
+     ===================================================================== */
+  var BOOKS = [
+    {id:1,  title:'Las aventuras de Sherlock Holmes', author:'Arthur Conan Doyle', genres:['Detective'], lang:'Español', price:42000, year:1892, feat:true,
+     desc:'Doce casos en los que el detective de Baker Street resuelve enigmas con observación y lógica. Una buena puerta de entrada al género.'},
+    {id:2,  title:'El perro de los Baskerville', author:'Arthur Conan Doyle', genres:['Detective','Terror'], lang:'Español', price:38000, year:1902,
+     desc:'Una leyenda familiar, un páramo y una criatura que aterra a la región. Holmes y Watson investigan una muerte que parece sobrenatural.'},
+    {id:3,  title:'Estudio en escarlata', author:'Arthur Conan Doyle', genres:['Detective'], lang:'Español', price:36000, year:1887,
+     desc:'La primera aparición de Sherlock Holmes y el doctor Watson, con un asesinato en Londres y un misterio con raíces lejanas.'},
+    {id:4,  title:'Los crímenes de la calle Morgue', author:'Edgar Allan Poe', genres:['Detective','Terror'], lang:'Español', price:29000, year:1841,
+     desc:'Un doble crimen en París y un aficionado al razonamiento que lo resuelve. Se considera un punto de partida del relato policial.'},
+    {id:5,  title:'La piedra lunar', author:'Wilkie Collins', genres:['Detective'], lang:'Español', price:41000, year:1868,
+     desc:'Un diamante desaparece durante una fiesta familiar y varios narradores reconstruyen, uno a uno, lo que ocurrió esa noche.'},
+    {id:6,  title:'Drácula', author:'Bram Stoker', genres:['Terror','Clásicos'], lang:'Español', price:45000, year:1897, feat:true,
+     desc:'Cartas, diarios y recortes de prensa cuentan la llegada del conde Drácula a Inglaterra y el grupo que intenta detenerlo.'},
+    {id:7,  title:'Frankenstein', author:'Mary Shelley', genres:['Terror','Clásicos'], lang:'Español', price:34000, year:1818,
+     desc:'Un joven científico da vida a una criatura y debe enfrentar las consecuencias de su ambición.'},
+    {id:8,  title:'El retrato de Dorian Gray', author:'Oscar Wilde', genres:['Clásicos'], lang:'Español', price:33000, year:1890,
+     desc:'Un retrato envejece mientras su dueño conserva la juventud. Una novela sobre la belleza, la vanidad y la culpa.'},
+    {id:9,  title:'El fantasma de Canterville', author:'Oscar Wilde', genres:['Comedia','Terror'], lang:'Español', price:22000, year:1887,
+     desc:'Una familia estadounidense se muda a una casa inglesa con fantasma, y el espectro no logra asustarla.'},
+    {id:10, title:'Orgullo y prejuicio', author:'Jane Austen', genres:['Romance','Clásicos'], lang:'Español', price:39000, year:1813, feat:true,
+     desc:'Elizabeth Bennet y el señor Darcy aprenden a corregir sus primeras impresiones en la Inglaterra rural del siglo XIX.'},
+    {id:11, title:'Pride and Prejudice', author:'Jane Austen', genres:['Romance','Clásicos'], lang:'Inglés', price:44000, year:1813,
+     desc:'La edición en inglés de la novela de Austen sobre las familias, el dinero y el matrimonio en la Inglaterra rural.'},
+    {id:12, title:'María', author:'Jorge Isaacs', genres:['Romance','Clásicos'], lang:'Español', price:31000, year:1867,
+     desc:'La historia de amor entre Efraín y María en el Valle del Cauca, un clásico del romanticismo colombiano.'},
+    {id:13, title:'Cumbres borrascosas', author:'Emily Brontë', genres:['Romance','Clásicos'], lang:'Español', price:37000, year:1847,
+     desc:'Una pasión intensa entre Heathcliff y Catherine en los páramos de Yorkshire, contada por varias voces.'},
+    {id:14, title:'Don Quijote de la Mancha', author:'Miguel de Cervantes', genres:['Clásicos','Comedia'], lang:'Español', price:68000, year:1605,
+     desc:'Un hidalgo que enloquece de tanto leer novelas de caballería sale a buscar aventuras junto a Sancho Panza.'},
+    {id:15, title:'Tres hombres en un bote', author:'Jerome K. Jerome', genres:['Comedia'], lang:'Español', price:28000, year:1889,
+     desc:'Tres amigos y un perro remontan el Támesis, y todo lo que puede salir mal sale mal.'},
+    {id:16, title:'Alicia en el país de las maravillas', author:'Lewis Carroll', genres:['Fantasía','Clásicos'], lang:'Español', price:30000, year:1865, feat:true,
+     desc:'Una niña sigue a un conejo blanco y llega a un mundo donde las reglas de la lógica dejan de funcionar.'},
+    {id:17, title:"Alice's Adventures in Wonderland", author:'Lewis Carroll', genres:['Fantasía','Clásicos'], lang:'Inglés', price:35000, year:1865,
+     desc:'La edición en inglés del viaje de Alicia por un mundo de juegos de palabras y personajes imposibles.'},
+    {id:18, title:'Peter Pan', author:'J. M. Barrie', genres:['Fantasía'], lang:'Español', price:29000, year:1911,
+     desc:'Un niño que no quiere crecer lleva a los hermanos Darling a Nunca Jamás, donde los esperan piratas y hadas.'},
+    {id:19, title:'El maravilloso mago de Oz', author:'L. Frank Baum', genres:['Fantasía'], lang:'Español', price:32000, year:1900,
+     desc:'Dorothy llega a una tierra extraña y recorre el camino amarillo en busca de un mago que la ayude a volver a casa.'},
+    {id:20, title:'The Hound of the Baskervilles', author:'Arthur Conan Doyle', genres:['Detective','Terror'], lang:'Inglés', price:40000, year:1902,
+     desc:'La edición en inglés del caso del páramo de Dartmoor, con una leyenda familiar y una muerte difícil de explicar.'}
+  ];
+
+  // Opciones de envío para el checkout (precios en COP)
+  var SHIPPING = {
+    estandar: {label:'Estándar · 3 a 5 días', cost:9000},
+    express:  {label:'Express · 1 a 2 días',  cost:18000}
+  };
+  var CITIES = ['Medellín','Bogotá','Cali','Barranquilla','Cartagena','Bucaramanga'];
+  var PER_PAGE = 9;
+
+  /* =====================================================================
+     2. UTILIDADES
+     ===================================================================== */
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  // Quita tildes y pasa a minúsculas para que la búsqueda no distinga "Brontë" de "bronte"
+  function norm(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  var fmt = new Intl.NumberFormat('es-CO', {style:'currency', currency:'COP', maximumFractionDigits:0});
+  function money(n) { return fmt.format(n); }
+  function byId(id) { return BOOKS.filter(function (b) { return b.id === id; })[0]; }
+  function reduceMotion() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+
+  // Almacenamiento local (puede fallar en ventanas privadas, por eso el try/catch)
+  function load(k, def) { try { var v = localStorage.getItem('bz:' + k); return v ? JSON.parse(v) : def; } catch (e) { return def; } }
+  function save(k, v) { try { localStorage.setItem('bz:' + k, JSON.stringify(v)); } catch (e) {} }
+
+  /* =====================================================================
+     3. ICONOS
+     ===================================================================== */
+  var ICON_ATTR = 'viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
+  var I = {
+    heart: '<svg ' + ICON_ATTR + '><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+    bag:   '<svg ' + ICON_ATTR + '><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+    arrow: '<svg ' + ICON_ATTR + '><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
+  };
+  // Rellena los iconos de la cabecera y del pie
+  $$('[data-icon]').forEach(function (el) { el.innerHTML = I[el.dataset.icon]; });
+
+  /* =====================================================================
+     4. PORTADAS GENERADAS
+     Cada portada es un SVG gris con un motivo geométrico, igual que los
+     bloques grises del wireframe. No se usan imágenes externas.
+     ===================================================================== */
+  var TONES = [['#9a9a96','#161614'], ['#5f5f5b','#f6f4ec'], ['#b3b3ae','#161614'],
+               ['#76766f','#f6f4ec'], ['#8c8c88','#161614'], ['#4d4d49','#f6f4ec']];
+
+  function motif(i, bg, ink) {
+    var line = 'fill="none" stroke="' + ink + '" stroke-width="2" opacity=".55"';
+    var out = '';
+    var k;
+    switch (i % 6) {
+      case 0: // círculos concéntricos
+        [30, 60, 90, 120].forEach(function (r) { out += '<circle cx="150" cy="130" r="' + r + '" ' + line + '/>'; });
+        break;
+      case 1: // franjas horizontales
+        for (k = 0; k < 9; k++) out += '<rect x="40" y="' + (40 + k * 20) + '" width="' + (220 - (k % 3) * 40) + '" height="8" fill="' + ink + '" opacity=".45"/>';
+        break;
+      case 2: // arcos
+        for (k = 0; k < 3; k++) out += '<path d="M' + (50 + k * 70) + ' 230V120a30 30 0 0 1 60 0V230Z" fill="' + ink + '" opacity="' + (0.25 + 0.2 * k) + '"/>';
+        break;
+      case 3: // líneas diagonales
+        for (k = 0; k < 10; k++) out += '<path d="M' + (20 + k * 28) + ' 30L' + (150 + k * 10) + ' 240" ' + line + '/>';
+        break;
+      case 4: // medio sol
+        out = '<circle cx="150" cy="170" r="84" fill="' + ink + '" opacity=".3"/><rect x="0" y="170" width="300" height="90" fill="' + bg + '"/><path d="M40 170H260" ' + line + '/>';
+        break;
+      default: // cuadrados superpuestos
+        out = '<rect x="60" y="50" width="120" height="120" ' + line + '/><rect x="110" y="100" width="120" height="120" fill="' + ink + '" opacity=".25"/>';
+    }
+    return out;
+  }
+
+  // Divide el título en líneas cortas para que quepa en la portada
+  function wrapTitle(t, max) {
+    var lines = [], cur = '';
+    t.split(' ').forEach(function (w) {
+      if (cur && (cur + ' ' + w).length > max) { lines.push(cur); cur = w; }
+      else cur = cur ? cur + ' ' + w : w;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  function cover(b) {
+    var tone = TONES[b.id % TONES.length], bg = tone[0], ink = tone[1];
+    var lines = wrapTitle(b.title, 15);
+    var y0 = 350 - (lines.length - 1) * 28;
+    var text = lines.map(function (l, n) {
+      return '<text x="30" y="' + (y0 + n * 28) + '" fill="' + ink + '" font-size="25" font-weight="700" style="font-family:var(--display)">' + esc(l) + '</text>';
+    }).join('');
+    return '<svg class="cover" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+      '<rect width="300" height="400" fill="' + bg + '"/><rect width="12" height="400" fill="' + ink + '" opacity=".14"/>' +
+      motif(b.id, bg, ink) + text +
+      '<text x="30" y="382" fill="' + ink + '" font-size="10" letter-spacing="1.6" style="font-family:var(--mono)">' + esc(b.author.toUpperCase()) + '</text></svg>';
+  }
+
+  // Bloque gris con motivo para las tarjetas de categoría
+  function catArt(i) {
+    var tone = TONES[(i * 2) % TONES.length];
+    return '<svg viewBox="0 0 300 260" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="300" height="260" fill="' + tone[0] + '"/>' + motif(i + 3, tone[0], tone[1]) + '</svg>';
+  }
+
+  /* =====================================================================
+     5. ESTADO
+     ===================================================================== */
+  var state = {
+    cart: load('cart', []).filter(function (c) { return byId(c.id); }),   // [{id, qty}]
+    fav: new Set(load('fav', [])),                                          // ids favoritos
+    reviews: load('reviews', {}),                                           // {idLibro: [{name,text,date}]}
+    f: {q:'', genres:new Set(), author:'', langs:new Set(), min:'', max:'', fav:false, sort:'rel', page:1},
+    authorPick: 'Arthur Conan Doyle',
+    scrollTo: null,
+    co: {step:1, contact:{}, ship:{}, method:'tarjeta', done:null}
+  };
+
+  var app = $('#app');
+
+  /* =====================================================================
+     6. COMPONENTES COMUNES
+     ===================================================================== */
+  function card(b) {
+    var on = state.fav.has(b.id);
+    return '<article class="card">' +
+      '<div class="card-cover"><a class="cover-link" href="#libro-' + b.id + '" aria-label="Ver ' + esc(b.title) + '">' + cover(b) + '</a>' +
+      '<div class="card-tools">' +
+      '<button type="button" class="tool' + (on ? ' on' : '') + '" data-act="fav" data-id="' + b.id + '" aria-pressed="' + on + '" aria-label="Guardar en favoritos">' + I.heart + '</button>' +
+      '<button type="button" class="tool" data-act="add" data-id="' + b.id + '" aria-label="Añadir al carrito">' + I.bag + '</button>' +
+      '</div></div>' +
+      '<h3 class="card-title"><a href="#libro-' + b.id + '">' + esc(b.title) + '</a></h3>' +
+      '<p class="card-author">' + esc(b.author) + '</p>' +
+      '<p class="price">' + money(b.price) + '</p></article>';
+  }
+
+  function secHead(title, label, act, extra) {
+    return '<div class="sec-head"><h2>' + title + '</h2>' +
+      (label ? '<button type="button" class="link" data-act="' + act + '" ' + (extra || '') + '>' + label + '</button>' : '') + '</div>';
+  }
+
+  function feature(b) {
+    return '<article class="feature"><a class="feature-cover" href="#libro-' + b.id + '" aria-label="Ver ' + esc(b.title) + '">' + cover(b) + '</a>' +
+      '<div class="feature-body"><h3><a href="#libro-' + b.id + '">' + esc(b.title) + '</a></h3>' +
+      '<p class="small muted">' + esc(b.author) + ' · ' + esc(b.lang) + '</p>' +
+      '<p class="feature-desc">' + esc(b.desc) + '</p>' +
+      '<div class="feature-foot"><span class="price">' + money(b.price) + '</span>' +
+      '<button type="button" class="btn" data-act="add" data-id="' + b.id + '">Añadir al carrito</button></div></div></article>';
+  }
+
+  function authorsList() {
+    var m = {};
+    BOOKS.forEach(function (b) { m[b.author] = (m[b.author] || 0) + 1; });
+    return Object.keys(m).map(function (a) { return [a, m[a]]; })
+      .sort(function (x, y) { return y[1] - x[1] || x[0].localeCompare(y[0], 'es'); });
+  }
+
+  /* =====================================================================
+     7. VISTA: INICIO
+     ===================================================================== */
+  function homeView() {
+    var feat = BOOKS.filter(function (b) { return b.feat; });
+    var det = BOOKS.filter(function (b) { return b.genres.indexOf('Detective') > -1; }).slice(0, 4);
+    var cats = ['Comedia', 'Romance', 'Fantasía'];
+
+    // Marquesina: la mitad se repite dos veces para que el bucle no tenga saltos
+    var words = [], n;
+    for (n = 0; n < 6; n++) words.push('NUEVOS LIBROS', 'CLÁSICOS');
+    var half = '<div class="mq-half">' + words.map(function (t) { return '<span>' + t + '</span><i></i>'; }).join('') + '</div>';
+
+    var authors = authorsList();
+    var stats = [
+      [BOOKS.length, 'Libros en catálogo'],
+      [authors.length, 'Autores'],
+      [new Set([].concat.apply([], BOOKS.map(function (b) { return b.genres; }))).size, 'Géneros'],
+      [new Set(BOOKS.map(function (b) { return b.lang; })).size, 'Idiomas']
+    ];
+
+    return '' +
+      '<section class="wrap hero"><h1>Un libro es un retrato de la verdad</h1>' +
+      '<form class="search" data-form="search" role="search"><label class="sr" for="hero-q">Buscar libros</label>' +
+      '<input id="hero-q" type="search" placeholder="Busca un libro, autor o género" autocomplete="off">' +
+      '<button type="submit" aria-label="Buscar">' + I.arrow + '</button></form></section>' +
+      '<div class="ribbon" aria-hidden="true"><div class="wedge"></div><div class="marquee"><div class="marquee-track">' + half + half + '</div></div></div>' +
+
+      '<section class="wrap section" id="sec-categorias">' + secHead('Categorías', 'Ver todo', 'catalog') +
+      '<div class="cats">' + cats.map(function (g, i) {
+        var c = BOOKS.filter(function (b) { return b.genres.indexOf(g) > -1; }).length;
+        return '<button type="button" class="cat" data-act="genre" data-genre="' + g + '" aria-label="Ver ' + g + '">' + catArt(i) +
+          '<span class="cat-label">' + g + '<em>' + c + ' libros</em></span></button>';
+      }).join('') + '</div></section>' +
+
+      '<section class="wrap section" id="sec-destacados">' + secHead('Destacados', 'Ver todo', 'catalog') +
+      '<div class="grid4">' + feat.map(card).join('') + '</div></section>' +
+
+      '<section class="wrap section" id="sec-autores">' + secHead('Libros por autor', 'Ver todo', 'author-all') + authorsBlock() + '</section>' +
+
+      '<section class="wrap section" id="sec-detective">' + secHead('Libros de detectives', 'Ver todo', 'genre', 'data-genre="Detective"') +
+      '<div class="grid4">' + det.map(card).join('') + '</div></section>' +
+
+      '<section class="wrap section"><div class="stats">' + stats.map(function (s) {
+        return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>';
+      }).join('') + '</div></section>';
+  }
+
+  function authorsBlock() {
+    var picks = BOOKS.filter(function (b) { return b.author === state.authorPick; }).slice(0, 2);
+    return '<div class="authors"><div class="author-list" role="group" aria-label="Autores">' +
+      authorsList().map(function (a) {
+        return '<button type="button" class="author-btn" data-act="author" data-author="' + esc(a[0]) + '" aria-pressed="' + (a[0] === state.authorPick) + '">' +
+          '<span>' + esc(a[0]) + '</span><em>' + a[1] + '</em></button>';
+      }).join('') + '</div><div class="feature-col" id="author-feats">' + picks.map(feature).join('') + '</div></div>';
+  }
+
+  /* =====================================================================
+     8. VISTA: CATÁLOGO (filtros, orden y paginación)
+     ===================================================================== */
+  function catalogView() {
+    var f = state.f;
+    var genres = Array.from(new Set([].concat.apply([], BOOKS.map(function (b) { return b.genres; })))).sort();
+    var langs = Array.from(new Set(BOOKS.map(function (b) { return b.lang; }))).sort();
+    var authors = Array.from(new Set(BOOKS.map(function (b) { return b.author; }))).sort(function (a, b) { return a.localeCompare(b, 'es'); });
+    var maxP = Math.max.apply(null, BOOKS.map(function (b) { return b.price; }));
+
+    var genreChecks = genres.map(function (g) {
+      var c = BOOKS.filter(function (b) { return b.genres.indexOf(g) > -1; }).length;
+      return '<label class="check"><input type="checkbox" data-filter="genre" value="' + esc(g) + '"' + (f.genres.has(g) ? ' checked' : '') + '> ' + esc(g) + '<em>' + c + '</em></label>';
+    }).join('');
+    var langChecks = langs.map(function (l) {
+      var c = BOOKS.filter(function (b) { return b.lang === l; }).length;
+      return '<label class="check"><input type="checkbox" data-filter="lang" value="' + esc(l) + '"' + (f.langs.has(l) ? ' checked' : '') + '> ' + esc(l) + '<em>' + c + '</em></label>';
+    }).join('');
+    var authorOpts = '<option value="">Todos los autores</option>' + authors.map(function (a) {
+      return '<option value="' + esc(a) + '"' + (f.author === a ? ' selected' : '') + '>' + esc(a) + '</option>';
+    }).join('');
+    var sorts = [['rel', 'Relevancia'], ['asc', 'Precio: menor a mayor'], ['desc', 'Precio: mayor a menor'], ['az', 'Título A–Z']];
+
+    return '<section class="wrap"><p class="crumbs"><a href="#inicio">Inicio</a> / Catálogo</p>' +
+      '<div class="cat-layout"><aside class="filters" id="filters" aria-label="Filtros">' +
+      '<div class="filters-head"><h2>Filtros</h2><button type="button" class="link" data-act="reset">Limpiar</button></div>' +
+      '<div class="fgroup"><h3>Género</h3>' + genreChecks + '</div>' +
+      '<div class="fgroup"><h3>Autor</h3><div class="field"><label class="sr" for="f-author">Autor</label><select id="f-author" data-filter="author">' + authorOpts + '</select></div></div>' +
+      '<div class="fgroup"><h3>Idioma</h3>' + langChecks + '</div>' +
+      '<div class="fgroup"><h3>Precio (COP)</h3><div class="price-row">' +
+      '<div class="field"><label for="f-min">Mín</label><input id="f-min" data-filter="min" type="number" min="0" step="1000" inputmode="numeric" placeholder="0" value="' + esc(f.min) + '"></div>' +
+      '<div class="field"><label for="f-max">Máx</label><input id="f-max" data-filter="max" type="number" min="0" step="1000" inputmode="numeric" placeholder="' + maxP + '" value="' + esc(f.max) + '"></div>' +
+      '</div></div></aside>' +
+      '<div class="cat-main"><div class="toolbar">' +
+      '<button type="button" class="btn ghost filter-toggle" data-act="toggle-filters" aria-expanded="false" aria-controls="filters">Filtros</button>' +
+      '<div class="field"><label class="sr" for="cat-q">Buscar</label><input id="cat-q" data-filter="q" type="search" placeholder="Buscar por título o autor" value="' + esc(f.q) + '" autocomplete="off"></div>' +
+      '<div class="field sortf"><label class="sr" for="f-sort">Ordenar</label><select id="f-sort" data-filter="sort">' +
+      sorts.map(function (s) { return '<option value="' + s[0] + '"' + (f.sort === s[0] ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') +
+      '</select></div></div>' +
+      '<p class="count" id="count"></p><div class="chips" id="chips"></div>' +
+      '<div class="grid" id="grid"></div><nav class="pager" id="pager" aria-label="Páginas"></nav></div></div></section>';
+  }
+
+  // Aplica filtros y orden sobre la lista de libros
+  function filterBooks() {
+    var f = state.f, q = norm(f.q.trim());
+    var r = BOOKS.filter(function (b) {
+      return (!q || norm(b.title + ' ' + b.author + ' ' + b.genres.join(' ')).indexOf(q) > -1) &&
+        (!f.genres.size || b.genres.some(function (g) { return f.genres.has(g); })) &&
+        (!f.author || b.author === f.author) &&
+        (!f.langs.size || f.langs.has(b.lang)) &&
+        (f.min === '' || b.price >= +f.min) &&
+        (f.max === '' || b.price <= +f.max) &&
+        (!f.fav || state.fav.has(b.id));
+    });
+    if (f.sort === 'asc') r.sort(function (a, b) { return a.price - b.price; });
+    if (f.sort === 'desc') r.sort(function (a, b) { return b.price - a.price; });
+    if (f.sort === 'az') r.sort(function (a, b) { return a.title.localeCompare(b.title, 'es'); });
+    return r;
+  }
+
+  function chipsHTML() {
+    var f = state.f, chips = [];
+    if (f.q.trim()) chips.push(['q', '', 'Búsqueda: ' + f.q.trim()]);
+    f.genres.forEach(function (g) { chips.push(['genre', g, g]); });
+    if (f.author) chips.push(['author', '', f.author]);
+    f.langs.forEach(function (l) { chips.push(['lang', l, l]); });
+    if (f.min !== '') chips.push(['min', '', 'Desde ' + money(+f.min)]);
+    if (f.max !== '') chips.push(['max', '', 'Hasta ' + money(+f.max)]);
+    if (f.fav) chips.push(['fav', '', 'Solo favoritos']);
+    return chips.map(function (c) {
+      return '<button type="button" class="chip" data-act="chip" data-kind="' + c[0] + '" data-val="' + esc(c[1]) + '" aria-label="Quitar filtro ' + esc(c[2]) + '">' + esc(c[2]) + ' <span aria-hidden="true">×</span></button>';
+    }).join('');
+  }
+
+  function pagerHTML(pages) {
+    var p = state.f.page, out = '<button type="button" class="pbtn" data-act="page" data-page="' + (p - 1) + '"' + (p === 1 ? ' disabled' : '') + ' aria-label="Página anterior">←</button>';
+    for (var n = 1; n <= pages; n++) {
+      out += '<button type="button" class="pbtn" data-act="page" data-page="' + n + '"' + (n === p ? ' aria-current="page"' : '') + '>' + n + '</button>';
+    }
+    return out + '<button type="button" class="pbtn" data-act="page" data-page="' + (p + 1) + '"' + (p === pages ? ' disabled' : '') + ' aria-label="Página siguiente">→</button>';
+  }
+
+  // Redibuja solo los resultados, así el foco no se pierde al escribir o marcar filtros
+  function renderResults() {
+    var f = state.f, list = filterBooks();
+    var pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+    f.page = Math.min(f.page, pages);
+    var slice = list.slice((f.page - 1) * PER_PAGE, f.page * PER_PAGE);
+    $('#count').textContent = list.length + (list.length === 1 ? ' libro' : ' libros');
+    $('#grid').innerHTML = slice.length ? slice.map(card).join('') :
+      '<div class="empty-state"><h2>No encontramos libros</h2><p class="muted">Prueba con otra búsqueda o quita algún filtro.</p><button type="button" class="btn" data-act="reset">Limpiar filtros</button></div>';
+    $('#chips').innerHTML = chipsHTML();
+    $('#pager').innerHTML = pages > 1 ? pagerHTML(pages) : '';
+  }
+
+  /* =====================================================================
+     9. VISTA: DETALLE DE LIBRO
+     ===================================================================== */
+  function reviewsHTML(id) {
+    var list = state.reviews[id] || [];
+    var items = list.length ? list.map(function (r) {
+      return '<div class="rev"><b>' + esc(r.name) + '</b><small>' + esc(r.date) + '</small><p>' + esc(r.text) + '</p></div>';
+    }).join('') : '<p class="muted">Todavía no hay reseñas de este libro.</p>';
+    return items +
+      '<form class="rev-form" data-form="review" data-id="' + id + '" novalidate><h3>Escribe una reseña</h3>' +
+      field('rv-name', 'Tu nombre', {auto:'name'}) +
+      '<div class="field"><label for="rv-text">Tu opinión</label><textarea id="rv-text" rows="3" data-req></textarea><p class="err" id="rv-text-err"></p></div>' +
+      '<div><button class="btn" type="submit">Publicar reseña</button></div></form>';
+  }
+
+  function bookView(id) {
+    var b = byId(id);
+    if (!b) return '<section class="wrap empty-state" style="margin-block:48px"><h2>No encontramos ese libro</h2><button type="button" class="btn" data-act="catalog">Ver el catálogo</button></section>';
+    var on = state.fav.has(b.id);
+    var rel = BOOKS.filter(function (x) { return x.id !== b.id && (x.author === b.author || x.genres.some(function (g) { return b.genres.indexOf(g) > -1; })); })
+      .sort(function (x, y) { return (x.author === b.author ? 0 : 1) - (y.author === b.author ? 0 : 1); }).slice(0, 4);
+    var count = (state.reviews[b.id] || []).length;
+
+    return '<section class="wrap"><p class="crumbs"><a href="#inicio">Inicio</a> / <a href="#catalogo">Catálogo</a> / ' + esc(b.title) + '</p>' +
+      '<div class="detail"><div class="detail-cover" role="img" aria-label="Portada de ' + esc(b.title) + '">' + cover(b) + '</div><div>' +
+      '<div class="d-top"><h1>' + esc(b.title) + '</h1><span class="d-price">' + money(b.price) + '</span></div>' +
+      '<p class="d-author">de <b>' + esc(b.author) + '</b></p>' +
+      '<details class="acc" open><summary>Acerca del libro</summary><dl class="facts">' +
+      '<dt>Género</dt><dd>' + esc(b.genres.join(', ')) + '</dd><dt>Idioma</dt><dd>' + esc(b.lang) + '</dd>' +
+      '<dt>Primera publicación</dt><dd>' + b.year + '</dd><dt>Formato</dt><dd>Tapa blanda</dd></dl></details>' +
+      '<details class="acc"><summary>Información adicional</summary><p>Edición en tapa blanda, disponible para envío dentro de Colombia.</p></details>' +
+      '<details class="acc"><summary>Envíos y devoluciones</summary><p>Envío estándar de 3 a 5 días por ' + money(SHIPPING.estandar.cost) + ' y express de 1 a 2 días por ' + money(SHIPPING.express.cost) + '. Si el libro llega dañado, lo cambiamos.</p></details>' +
+      '<div class="buy"><div class="qty"><button type="button" data-act="dqty" data-d="-1" aria-label="Quitar uno">–</button>' +
+      '<label class="sr" for="d-qty">Cantidad</label><input id="d-qty" type="number" value="1" min="1" max="20" readonly>' +
+      '<button type="button" data-act="dqty" data-d="1" aria-label="Agregar uno">+</button></div>' +
+      '<button type="button" class="btn" data-act="add-detail" data-id="' + b.id + '">Añadir al carrito</button></div>' +
+      '<div class="d-actions"><button type="button" class="btn ghost' + (on ? ' on' : '') + '" data-act="fav" data-id="' + b.id + '" aria-pressed="' + on + '">' + I.heart + ' Favorito</button>' +
+      '<button type="button" class="btn ghost" data-act="copy-link">Copiar enlace</button></div>' +
+      '</div></div></section>' +
+
+      '<section class="wrap section"><div class="tabs" role="tablist">' +
+      '<button type="button" class="tab" role="tab" aria-selected="true" data-act="tab" data-tab="desc">Descripción</button>' +
+      '<button type="button" class="tab" role="tab" aria-selected="false" data-act="tab" data-tab="rev" id="rev-tab">Reseñas (' + count + ')</button></div>' +
+      '<div class="panel" id="tab-desc"><p>' + esc(b.desc) + '</p></div>' +
+      '<div class="panel" id="tab-rev" hidden>' + reviewsHTML(b.id) + '</div></section>' +
+
+      (rel.length ? '<section class="wrap section">' + secHead('Libros relacionados') + '<div class="grid4">' + rel.map(card).join('') + '</div></section>' : '');
+  }
+
+  /* =====================================================================
+     10. VISTA: CHECKOUT EN TRES PASOS
+     ===================================================================== */
+  function field(id, label, o) {
+    o = o || {};
+    return '<div class="field"><label for="' + id + '">' + label + '</label>' +
+      '<input id="' + id + '" name="' + id + '" type="' + (o.type || 'text') + '" value="' + esc(o.val || '') + '" placeholder="' + esc(o.ph || '') + '"' +
+      (o.req === false ? '' : ' data-req') + (o.vtype ? ' data-type="' + o.vtype + '"' : '') + (o.auto ? ' autocomplete="' + o.auto + '"' : '') + (o.extra ? ' ' + o.extra : '') + '>' +
+      '<p class="err" id="' + id + '-err" aria-live="polite"></p></div>';
+  }
+
+  function cartItems() {
+    return state.cart.map(function (c) { return {b:byId(c.id), qty:c.qty}; }).filter(function (x) { return x.b; });
+  }
+
+  function totals() {
+    var sub = cartItems().reduce(function (s, x) { return s + x.b.price * x.qty; }, 0);
+    var m = state.co.ship.method;
+    var ship = m ? SHIPPING[m].cost : null;
+    return {sub:sub, ship:ship, total:sub + (ship || 0)};
+  }
+
+  function summaryHTML() {
+    var t = totals();
+    return '<h2>Resumen del pedido</h2>' + cartItems().map(function (x) {
+      return '<div class="sum-item"><div class="sum-cover">' + cover(x.b) + '</div><div><p class="sum-title">' + esc(x.b.title) + '</p>' +
+        '<p class="small muted">' + esc(x.b.genres[0]) + ' · ' + esc(x.b.lang) + '</p>' +
+        '<div class="mini-qty"><button type="button" data-act="cqty" data-id="' + x.b.id + '" data-d="-1" aria-label="Quitar uno">–</button><span>' + x.qty +
+        '</span><button type="button" data-act="cqty" data-id="' + x.b.id + '" data-d="1" aria-label="Agregar uno">+</button></div></div>' +
+        '<p class="price">' + money(x.b.price * x.qty) + '</p></div>';
+    }).join('') +
+      '<div class="totals"><div><span>Subtotal</span><span>' + money(t.sub) + '</span></div>' +
+      '<div><span>Envío</span><span>' + (t.ship === null ? 'Se define en el paso 2' : money(t.ship)) + '</span></div>' +
+      '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div></div>';
+  }
+
+  function step(n, title, summary, body) {
+    var active = state.co.step === n, done = state.co.step > n;
+    return '<section class="step' + (active ? ' is-active' : '') + (done ? ' is-done' : '') + '">' +
+      '<header class="step-head"><span class="step-n">' + n + '</span><h2>' + title + '</h2>' +
+      (done ? '<button type="button" class="link" data-act="edit-step" data-step="' + n + '">Editar</button>' : '') + '</header>' +
+      (done ? '<p class="step-sum">' + summary + '</p>' : '') +
+      (active ? '<div class="step-body">' + body + '</div>' : '') + '</section>';
+  }
+
+  function checkoutView() {
+    var co = state.co;
+    if (co.done) return doneView();
+    if (!cartItems().length) {
+      return '<section class="wrap"><div class="empty-state" style="margin-block:40px"><h2>Tu carrito está vacío</h2><p class="muted">Añade un libro para empezar el pedido.</p><button type="button" class="btn" data-act="catalog">Ver el catálogo</button></div></section>';
+    }
+    var c = co.contact, s = co.ship;
+
+    var contact = '<form class="stack" data-form="contact" novalidate>' +
+      field('c-name', 'Nombre completo', {val:c.name, auto:'name'}) +
+      field('c-mail', 'Correo electrónico', {val:c.mail, type:'email', vtype:'email', auto:'email'}) +
+      field('c-tel', 'Teléfono', {val:c.tel, type:'tel', vtype:'tel', auto:'tel'}) +
+      '<button class="btn block" type="submit">Continuar</button></form>';
+
+    var cityOpts = CITIES.map(function (x) { return '<option' + (s.city === x ? ' selected' : '') + '>' + x + '</option>'; }).join('');
+    var shipOpts = Object.keys(SHIPPING).map(function (k) {
+      return '<option value="' + k + '"' + ((s.method || 'estandar') === k ? ' selected' : '') + '>' + SHIPPING[k].label + ' · ' + money(SHIPPING[k].cost) + '</option>';
+    }).join('');
+    var ship = '<form class="stack" data-form="ship" novalidate>' +
+      '<div class="row2"><div class="field"><label for="s-city">Ciudad</label><select id="s-city">' + cityOpts + '</select></div>' +
+      field('s-zip', 'Código postal (opcional)', {val:s.zip, req:false, auto:'postal-code'}) + '</div>' +
+      field('s-addr', 'Dirección', {val:s.addr, ph:'Calle, número, apartamento', auto:'street-address'}) +
+      '<div class="field"><label for="s-method">Método de envío</label><select id="s-method">' + shipOpts + '</select></div>' +
+      '<button class="btn block" type="submit">Continuar</button></form>';
+
+    var m = co.method;
+    var pay = '<form class="stack" data-form="pay" novalidate>' +
+      '<div class="field"><label for="p-method">Método de pago</label><select id="p-method" data-pm>' +
+      [['tarjeta', 'Tarjeta de crédito o débito'], ['pse', 'PSE'], ['contra', 'Pago contra entrega']].map(function (o) {
+        return '<option value="' + o[0] + '"' + (m === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
+      }).join('') + '</select></div>' +
+      '<div class="stack" id="card-fields"' + (m === 'tarjeta' ? '' : ' hidden') + '>' +
+      field('p-num', 'Número de tarjeta', {vtype:'card', ph:'0000 0000 0000 0000', extra:'inputmode="numeric" maxlength="23" autocomplete="off"'}) +
+      '<div class="row3">' + field('p-name', 'Nombre en la tarjeta', {extra:'autocomplete="off"'}) +
+      field('p-exp', 'Vence', {vtype:'exp', ph:'MM/AA', extra:'maxlength="5" autocomplete="off"'}) +
+      field('p-cvc', 'CVC', {vtype:'cvc', extra:'inputmode="numeric" maxlength="4" autocomplete="off"'}) + '</div></div>' +
+      '<p class="note">Demostración: esta página no procesa pagos ni guarda datos de tarjeta.</p>' +
+      '<button class="btn block" type="submit">Confirmar pedido · <span id="pay-total">' + money(totals().total) + '</span></button></form>';
+
+    return '<section class="wrap"><p class="crumbs"><a href="#inicio">Inicio</a> / <a href="#catalogo">Catálogo</a> / Pedido</p>' +
+      '<div class="co"><div>' +
+      step(1, 'Información de contacto', esc(c.name || '') + ' · ' + esc(c.mail || ''), contact) +
+      step(2, 'Dirección de envío', esc(s.addr || '') + ', ' + esc(s.city || '') + ' · ' + (s.method ? SHIPPING[s.method].label : ''), ship) +
+      step(3, 'Método de pago', '', pay) +
+      '</div><aside class="summary" id="order-summary">' + summaryHTML() + '</aside></div></section>';
+  }
+
+  function doneView() {
+    var d = state.co.done;
+    return '<section class="wrap"><div class="done"><p class="crumbs" style="padding:0">Pedido ' + esc(d.no) + '</p>' +
+      '<h1>Gracias, ' + esc(d.name.split(' ')[0]) + '. Tu pedido quedó registrado.</h1>' +
+      '<p class="muted">Enviaremos los libros a ' + esc(d.city) + '. Total del pedido: <b>' + money(d.total) + '</b>.</p>' +
+      '<ul>' + d.items.map(function (i) { return '<li>' + i.qty + ' × ' + esc(i.title) + '</li>'; }).join('') + '</ul>' +
+      '<p class="note">Esto es una demostración: no se cobró nada y no se creó ningún pedido real.</p>' +
+      '<div><button type="button" class="btn" data-act="catalog">Seguir explorando</button></div></div></section>';
+  }
+
+  /* =====================================================================
+     11. VALIDACIÓN DE FORMULARIOS
+     ===================================================================== */
+  function validate(form) {
+    var ok = true, first = null;
+    $$('input,select,textarea', form).forEach(function (inp) {
+      var err = inp.id ? $('#' + inp.id + '-err') : null;
+      if (err) err.textContent = '';
+      inp.removeAttribute('aria-invalid');
+      if (inp.closest('[hidden]') || !inp.hasAttribute('data-req')) return;
+      var v = inp.value.trim(), msg = '', t = inp.dataset.type;
+      if (!v) msg = 'Completa este campo.';
+      else if (t === 'email' && !/^\S+@\S+\.\S+$/.test(v)) msg = 'Escribe un correo válido.';
+      else if (t === 'tel' && v.replace(/\D/g, '').length < 7) msg = 'Escribe un teléfono válido.';
+      else if (t === 'card' && !/^\d{13,19}$/.test(v.replace(/\s/g, ''))) msg = 'El número de tarjeta no es válido.';
+      else if (t === 'exp' && !/^(0[1-9]|1[0-2])\/\d{2}$/.test(v)) msg = 'Usa el formato MM/AA.';
+      else if (t === 'cvc' && !/^\d{3,4}$/.test(v)) msg = 'El código no es válido.';
+      if (msg) {
+        ok = false;
+        inp.setAttribute('aria-invalid', 'true');
+        if (err) { err.textContent = msg; inp.setAttribute('aria-describedby', err.id); }
+        if (!first) first = inp;
+      }
+    });
+    if (first) first.focus();
+    return ok;
+  }
+
+  /* =====================================================================
+     12. ACCIONES: carrito, favoritos, avisos
+     ===================================================================== */
+  var toastTimer;
+  function toast(msg) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+
+  function updateBadges() {
+    var c = state.cart.reduce(function (s, x) { return s + x.qty; }, 0);
+    var cb = $('#cart-count'), fb = $('#fav-count');
+    cb.textContent = c; cb.hidden = c === 0;
+    fb.textContent = state.fav.size; fb.hidden = state.fav.size === 0;
+  }
+
+  function addToCart(id, n) {
+    var it = state.cart.filter(function (c) { return c.id === id; })[0];
+    if (it) it.qty = Math.min(20, it.qty + n); else state.cart.push({id:id, qty:n});
+    state.co.done = null;
+    save('cart', state.cart);
+    updateBadges();
+    toast('Añadido al carrito: ' + byId(id).title);
+  }
+
+  function toggleFav(id) {
+    if (state.fav.has(id)) state.fav.delete(id); else state.fav.add(id);
+    var on = state.fav.has(id);
+    save('fav', Array.from(state.fav));
+    // Sincroniza todos los botones de favorito de ese libro sin redibujar la página
+    $$('[data-act="fav"][data-id="' + id + '"]').forEach(function (b) {
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on);
+    });
+    updateBadges();
+    toast(on ? 'Guardado en favoritos' : 'Quitado de favoritos');
+  }
+
+  function pickAuthor(a) {
+    state.authorPick = a;
+    $$('.author-btn').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.author === a); });
+    $('#author-feats').innerHTML = BOOKS.filter(function (b) { return b.author === a; }).slice(0, 2).map(feature).join('');
+  }
+
+  /* =====================================================================
+     13. NAVEGACIÓN
+     Rutas por hash: #inicio, #catalogo, #libro-3, #checkout
+     ===================================================================== */
+  function route() {
+    var h = location.hash.replace('#', '');
+    if (h.indexOf('libro-') === 0) return {name:'book', id:+h.slice(6)};
+    if (h === 'catalogo') return {name:'catalog'};
+    if (h === 'checkout') return {name:'checkout'};
+    return {name:'home'};
+  }
+
+  function navigate(h) {
+    if (location.hash === '#' + h) render(); else location.hash = h;
+  }
+
+  function openCatalog(o) {
+    state.f = {q:o.q || '', genres:new Set(o.genres || []), author:o.author || '', langs:new Set(o.langs || []),
+               min:'', max:'', fav:!!o.fav, sort:'rel', page:1};
+    state.scrollTo = null;
+    navigate('catalogo');
+  }
+
+  function scrollToId(id) {
+    var el = document.getElementById(id);
+    if (el) el.scrollIntoView({behavior: reduceMotion() ? 'auto' : 'smooth', block:'start'});
+    else window.scrollTo(0, 0);
+  }
+
+  function goHome(target) {
+    if (route().name === 'home') {
+      if (target) scrollToId(target); else window.scrollTo({top:0, behavior: reduceMotion() ? 'auto' : 'smooth'});
+    } else {
+      state.scrollTo = target || null;
+      navigate('inicio');
+    }
+  }
+
+  function render() {
+    var r = route();
+    app.innerHTML = r.name === 'catalog' ? catalogView() :
+                    r.name === 'book' ? bookView(r.id) :
+                    r.name === 'checkout' ? checkoutView() : homeView();
+    updateBadges();
+    if (r.name === 'catalog') renderResults();
+    if (state.scrollTo) { var t = state.scrollTo; state.scrollTo = null; scrollToId(t); }
+    else window.scrollTo(0, 0);
+  }
+
+  /* =====================================================================
+     14. EVENTOS
+     Se usa delegación: un solo oyente por tipo de evento para toda la página.
+     ===================================================================== */
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-act]');
+    if (!el) return;
+    var act = el.dataset.act, id = +el.dataset.id;
+    var f = state.f;
+
+    switch (act) {
+      case 'home': e.preventDefault(); goHome(el.dataset.target); break;
+      case 'catalog': openCatalog({}); break;
+      case 'genre': openCatalog({genres:[el.dataset.genre]}); break;
+      case 'lang': openCatalog({langs:[el.dataset.lang]}); break;
+      case 'favs': openCatalog({fav:true}); break;
+      case 'author-all': openCatalog({author:state.authorPick}); break;
+      case 'cart': navigate('checkout'); break;
+      case 'author': pickAuthor(el.dataset.author); break;
+      case 'add': addToCart(id, 1); break;
+      case 'fav': toggleFav(id); break;
+
+      // Catálogo
+      case 'reset': openCatalog({}); break;
+      case 'toggle-filters':
+        var open = $('#filters').classList.toggle('open');
+        el.setAttribute('aria-expanded', open);
+        break;
+      case 'chip':
+        var k = el.dataset.kind, v = el.dataset.val;
+        if (k === 'q') f.q = '';
+        if (k === 'genre') f.genres.delete(v);
+        if (k === 'lang') f.langs.delete(v);
+        if (k === 'author') f.author = '';
+        if (k === 'min') f.min = '';
+        if (k === 'max') f.max = '';
+        if (k === 'fav') f.fav = false;
+        f.page = 1;
+        render();
+        break;
+      case 'page':
+        f.page = +el.dataset.page;
+        renderResults();
+        $('#grid').scrollIntoView({behavior: reduceMotion() ? 'auto' : 'smooth', block:'start'});
+        break;
+
+      // Detalle
+      case 'dqty':
+        var q = $('#d-qty');
+        q.value = Math.max(1, Math.min(20, (+q.value) + (+el.dataset.d)));
+        break;
+      case 'add-detail': addToCart(id, +$('#d-qty').value || 1); break;
+      case 'copy-link':
+        try {
+          navigator.clipboard.writeText(location.href)
+            .then(function () { toast('Enlace copiado'); })
+            .catch(function () { toast('No se pudo copiar el enlace'); });
+        } catch (err) { toast('No se pudo copiar el enlace'); }
+        break;
+      case 'tab':
+        $$('.tab').forEach(function (t) { t.setAttribute('aria-selected', t === el); });
+        $('#tab-desc').hidden = el.dataset.tab !== 'desc';
+        $('#tab-rev').hidden = el.dataset.tab !== 'rev';
+        break;
+
+      // Checkout
+      case 'edit-step': state.co.step = +el.dataset.step; render(); break;
+      case 'cqty':
+        var it = state.cart.filter(function (c) { return c.id === id; })[0];
+        if (!it) break;
+        it.qty += +el.dataset.d;
+        if (it.qty < 1) state.cart = state.cart.filter(function (c) { return c.id !== id; });
+        save('cart', state.cart);
+        updateBadges();
+        if (!state.cart.length) { render(); break; }
+        $('#order-summary').innerHTML = summaryHTML();
+        var pt = $('#pay-total'); if (pt) pt.textContent = money(totals().total);
+        break;
+    }
+  });
+
+  // Filtros del catálogo: casillas, selects y campos de precio
+  document.addEventListener('change', function (e) {
+    var t = e.target, f = state.f;
+    if (t.dataset.pm !== undefined) {           // cambia el método de pago
+      state.co.method = t.value;
+      $('#card-fields').hidden = t.value !== 'tarjeta';
+      return;
+    }
+    if (!t.dataset.filter) return;
+    switch (t.dataset.filter) {
+      case 'genre': if (t.checked) f.genres.add(t.value); else f.genres.delete(t.value); break;
+      case 'lang':  if (t.checked) f.langs.add(t.value); else f.langs.delete(t.value); break;
+      case 'author': f.author = t.value; break;
+      case 'min': f.min = t.value; break;
+      case 'max': f.max = t.value; break;
+      case 'sort': f.sort = t.value; break;
+    }
+    f.page = 1;
+    renderResults();
+  });
+
+  // Búsqueda en vivo dentro del catálogo
+  document.addEventListener('input', function (e) {
+    if (e.target.dataset.filter === 'q') { state.f.q = e.target.value; state.f.page = 1; renderResults(); }
+  });
+
+  document.addEventListener('submit', function (e) {
+    var form = e.target.closest('form');
+    if (!form) return;
+    e.preventDefault();                          // ningún formulario envía datos a ningún lado
+    var co = state.co;
+
+    switch (form.dataset.form) {
+      case 'search':
+        openCatalog({q:form.querySelector('input').value.trim()});
+        break;
+
+      case 'review':
+        if (!validate(form)) return;
+        var bid = +form.dataset.id;
+        (state.reviews[bid] = state.reviews[bid] || []).push({
+          name: $('#rv-name').value.trim(), text: $('#rv-text').value.trim(), date: new Date().toISOString().slice(0, 10)
+        });
+        save('reviews', state.reviews);
+        $('#tab-rev').innerHTML = reviewsHTML(bid);
+        $('#rev-tab').textContent = 'Reseñas (' + state.reviews[bid].length + ')';
+        toast('Reseña publicada');
+        break;
+
+      case 'contact':
+        if (!validate(form)) return;
+        co.contact = {name:$('#c-name').value.trim(), mail:$('#c-mail').value.trim(), tel:$('#c-tel').value.trim()};
+        co.step = 2; render();
+        break;
+
+      case 'ship':
+        if (!validate(form)) return;
+        co.ship = {city:$('#s-city').value, zip:$('#s-zip').value.trim(), addr:$('#s-addr').value.trim(), method:$('#s-method').value};
+        co.step = 3; render();
+        break;
+
+      case 'pay':
+        if (!validate(form)) return;
+        var t = totals();
+        co.done = {
+          no: 'BZ-' + (100000 + Math.floor(Math.random() * 900000)),
+          name: co.contact.name, city: co.ship.city, total: t.total,
+          items: cartItems().map(function (x) { return {title:x.b.title, qty:x.qty}; })
+        };
+        // Se vacía el carrito y se reinicia el flujo; los datos de tarjeta nunca se guardan
+        state.cart = []; save('cart', []);
+        co.step = 1; co.ship = {};
+        render();
+        break;
+    }
+  });
+
+  window.addEventListener('hashchange', render);
+
+  // Primer dibujo de la página
+  render();
+})();
+</script>
+
+</body></html>
